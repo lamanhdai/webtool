@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-export function VideoPlayer({ src, poster, title }) {
+export function VideoPlayer({ src, poster, title, subtitleTracks = [], activeSubtitleLanguage = 'off' }) {
   const videoRef = useRef(null)
   const fadeTimerRef = useRef(null)
 
@@ -9,6 +9,13 @@ export function VideoPlayer({ src, poster, title }) {
   const [currentTime, setCurrentTime] = useState(0)
   const [volume, setVolume] = useState(0.8)
   const [playbackRate, setPlaybackRate] = useState(1)
+
+  const activeTrack = useMemo(() => {
+    if (activeSubtitleLanguage === 'off') {
+      return null
+    }
+    return subtitleTracks.find((track) => track.language === activeSubtitleLanguage) || null
+  }, [activeSubtitleLanguage, subtitleTracks])
 
   useEffect(() => {
     return () => {
@@ -104,6 +111,21 @@ export function VideoPlayer({ src, poster, title }) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [isPlaying, handlePauseSmooth, handlePlay])
 
+  useEffect(() => {
+    if (!videoRef.current) {
+      return
+    }
+
+    const textTracks = videoRef.current.textTracks
+    for (let index = 0; index < textTracks.length; index += 1) {
+      const track = textTracks[index]
+      const shouldShow =
+        activeTrack &&
+        (track.language === activeTrack.language || track.label === activeTrack.language)
+      track.mode = shouldShow ? 'showing' : 'disabled'
+    }
+  }, [activeTrack])
+
   return (
     <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
       <div className="overflow-hidden rounded-lg border border-slate-800 bg-black">
@@ -118,7 +140,18 @@ export function VideoPlayer({ src, poster, title }) {
           onTimeUpdate={syncState}
           onRateChange={syncState}
           onVolumeChange={syncState}
-        />
+        >
+          {subtitleTracks.map((track) => (
+            <track
+              key={`${track.language}-${track.src}`}
+              kind="subtitles"
+              label={track.language.toUpperCase()}
+              srcLang={track.language}
+              src={track.src}
+              default={track.language === activeSubtitleLanguage && activeSubtitleLanguage !== 'off'}
+            />
+          ))}
+        </video>
       </div>
 
       <div className="space-y-3">

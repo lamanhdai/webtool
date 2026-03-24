@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { SubtitlePanel } from '../components/SubtitlePanel'
 import { VideoPlayer } from '../components/VideoPlayer'
+import { useSubtitles } from '../hooks/useSubtitles'
 import { useVideoStore } from '../store/useVideoStore'
 import { categoryLabel } from '../utils/videoFilters'
 
@@ -12,6 +14,19 @@ export function VideoDetailPage() {
 
   const video = getVideoById(id)
   const backToList = `/video${location.search}`
+
+  const {
+    tracks,
+    selectedLanguage,
+    setSelectedLanguage,
+    requestGeneration,
+    loading,
+    job,
+    error,
+  } = useSubtitles({
+    videoId: id,
+    videoUrl: video?.videoUrl || '',
+  })
 
   if (!video) {
     return (
@@ -43,7 +58,26 @@ export function VideoDetailPage() {
           />
         </div>
 
-        <VideoPlayer src={video.videoUrl} poster={video.thumbnail} title={video.title} />
+        <VideoPlayer
+          src={video.videoUrl}
+          poster={video.thumbnail}
+          title={video.title}
+          subtitleTracks={tracks.map((track) => ({
+            language: track.language,
+            src: `${import.meta.env.VITE_SUBTITLE_API_BASE_URL || 'http://localhost:8787'}${track.relativeUrl}`,
+          }))}
+          activeSubtitleLanguage={selectedLanguage}
+        />
+
+        <SubtitlePanel
+          tracks={tracks}
+          selectedLanguage={selectedLanguage}
+          onLanguageChange={setSelectedLanguage}
+          onGenerate={requestGeneration}
+          isGenerating={loading || ['queued', 'processing'].includes(job?.status)}
+          job={job}
+          error={error}
+        />
 
         <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
           <div className="flex flex-wrap items-center gap-2">

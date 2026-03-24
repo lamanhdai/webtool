@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAppStore } from '../store/useAppStore';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 export const api = axios.create({
   baseURL: API_BASE,

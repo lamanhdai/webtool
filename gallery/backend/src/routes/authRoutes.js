@@ -8,11 +8,14 @@ const router = Router();
 router.post('/register', async (req, res, next) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password || password.length < 6) {
+    const safeUsername = typeof username === 'string' ? username.trim() : '';
+    const safePassword = typeof password === 'string' ? password : '';
+
+    if (!safeUsername || !safePassword || safePassword.length < 6) {
       return res.status(400).json({ message: 'Username and password (min 6 chars) are required' });
     }
 
-    const user = await createUser(username.trim(), password);
+    const user = await createUser(safeUsername, safePassword);
     const token = signToken({ sub: user.id, username: user.username, isAdmin: Boolean(user.isAdmin) });
     const unlockedImages = await getUnlockedImageIds(user.id);
 
@@ -36,11 +39,14 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password) {
+  const safeUsername = typeof username === 'string' ? username.trim() : '';
+  const safePassword = typeof password === 'string' ? password : '';
+
+  if (!safeUsername || !safePassword) {
     return res.status(400).json({ message: 'Username and password are required' });
   }
 
-  const user = await verifyUserCredentials(username.trim(), password);
+  const user = await verifyUserCredentials(safeUsername, safePassword);
   if (!user) {
     return res.status(401).json({ message: 'Invalid credentials' });
   }

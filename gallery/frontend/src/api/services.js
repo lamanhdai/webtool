@@ -17,7 +17,7 @@ export async function getMe() {
 
 export async function getImages({ page, filter }) {
   const { data } = await api.get('/images', {
-    params: { page, filter },
+    params: { page, filter, sync:'true' },
   });
   return data;
 }

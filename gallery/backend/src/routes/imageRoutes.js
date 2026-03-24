@@ -27,6 +27,8 @@ router.get('/', optionalAuth, async (req, res) => {
     userId: req.user?.sub || null,
   });
 
+  console.log(payload)
+
   return res.json(payload);
 });
 

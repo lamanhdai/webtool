@@ -11,7 +11,7 @@ cloudinary.config({
 function normalizeResource(resource) {
   return {
     public_id: resource.public_id,
-    format: resource.format || 'jpg',
+    format: resource.format || 'JPG',
     created_at: resource.created_at,
     updated_at: resource.updated_at || resource.created_at,
   };
@@ -36,7 +36,6 @@ export async function fetchAllCloudinaryImages() {
     all.push(...resources.map(normalizeResource));
     nextCursor = response.next_cursor;
   } while (nextCursor);
-
   return all;
 }
 

@@ -1,12 +1,17 @@
-# Video Feature Module (React + Vite)
+# Video Module + AI Subtitle Pipeline
 
-This project now includes a complete **Video module** under `src/Video` with:
+This project includes:
 
-- Video listing page
-- Filters (debounced search, year, category)
-- Pagination (20 videos per page)
-- Video detail page with breadcrumb navigation
-- Custom HTML5 video player controls
+1. A frontend **Video module** in `src/Video`
+2. A Node.js **subtitle backend** in `backend/`
+
+Together, they provide:
+
+- Video listing + detail pages
+- Custom player controls
+- AI subtitle generation from video audio
+- Multi-language subtitle translation
+- Dynamic subtitle track loading in player
 
 ## Feature Overview
 
@@ -43,6 +48,20 @@ This project now includes a complete **Video module** under `src/Video` with:
 - Playback speed selector
 - Keyboard shortcut: `Space` toggles play/pause
 
+### 4) AI Subtitle Features
+
+- Generate subtitles via backend pipeline:
+  - Extract audio (FFmpeg)
+  - Speech-to-text (OpenAI Whisper; fallback mode when key not set)
+  - Translate into multiple languages (DeepL / Google Translate; fallback mode)
+  - Convert to `.vtt`
+  - Persist subtitle files and metadata
+- Frontend integration:
+  - “Generate Subtitles (AI)” trigger
+  - Progress and status updates (polling)
+  - Language selector (`Off`, `English`, `Vietnamese`, `Japanese`)
+  - Dynamic `<track>` injection into video element
+
 ## Folder Structure
 
 ```txt
@@ -66,6 +85,29 @@ src/
       videos.js
     store/
       useVideoStore.js
+
+backend/
+  .env.example
+  package.json
+  data/
+    examples/
+      sample-en.vtt
+  src/
+    index.js
+    config/
+      env.js
+    routes/
+      subtitleRoutes.js
+    services/
+      audioService.js
+      sttService.js
+      translationService.js
+      subtitleJobService.js
+      fileStore.js
+    utils/
+      time.js
+      vtt.js
+      paths.js
 ```
 
 ## Mock Data
@@ -81,12 +123,62 @@ src/
   - `videoUrl`
   - `description`
 
+## Environment
+
+### Frontend (`video/.env`)
+
+Copy from `.env.example`:
+
+```bash
+VITE_SUBTITLE_API_BASE_URL=http://localhost:8787
+```
+
+### Backend (`video/backend/.env`)
+
+Copy from `backend/.env.example`:
+
+```bash
+PORT=8787
+SUBTITLE_PUBLIC_BASE_URL=http://localhost:8787
+
+OPENAI_API_KEY=
+OPENAI_WHISPER_MODEL=whisper-1
+
+DEEPL_API_KEY=
+GOOGLE_TRANSLATE_API_KEY=
+
+FFMPEG_PATH=ffmpeg
+```
+
+> If API keys are not set, the backend uses safe placeholder fallback text so the UX flow still works.
+
 ## Run
+
+### 1) Frontend
 
 ```bash
 npm install
 npm run dev
 ```
+
+### 2) Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+## Subtitle API Endpoints
+
+- `POST /subtitles/generate/:videoId`
+- `GET /subtitles/:videoId`
+- `GET /subtitles/:videoId/:lang`
+- `GET /subtitles/jobs/:jobId/status`
+
+Static VTT hosting:
+
+- `GET /subtitle-files/:videoId/:lang.vtt`
 
 ## Quality Checks
 
@@ -94,5 +186,12 @@ npm run dev
 npm run lint
 npm run build
 ```
+
+Backend health check:
+
+```bash
+curl http://localhost:8787/health
+```
+
 
 
