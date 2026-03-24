@@ -23,7 +23,7 @@ jobs:
     - run: npm run build
     - name: Upload ftp
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
+      with: 
         server: ${{ secrets.HOST_IP }}
         username: ${{ secrets.USERNAME }}
         port: "21"
