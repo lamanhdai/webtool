@@ -1,10 +1,14 @@
 import { useMemo } from 'react'
+import ReactGA from "react-ga4";
 import { FileDropZone } from './features/file-parser/FileDropZone'
 import { PatternEditor } from './features/renamer/PatternEditor'
 import { PreviewTable } from './features/preview/PreviewTable'
 import { useRenamerStore } from './store/useRenamerStore'
 import { buildPreviewRows } from './utils/patternEngine'
 import { exportAsZip, exportRenameScript } from './utils/exportUtils'
+import { usePageViews } from './features/tracking/PageView';
+
+ReactGA.initialize("G-QSKQZWRY75");
 
 function App() {
   const files = useRenamerStore((s) => s.files)
@@ -17,6 +21,8 @@ function App() {
     () => buildPreviewRows(files, pattern, settings, manualNames),
     [files, pattern, settings, manualNames],
   )
+
+  usePageViews()
 
   const hasErrors = rows.some((row) => row.status !== 'ok')
   const validRows = rows.filter((row) => row.status === 'ok')
