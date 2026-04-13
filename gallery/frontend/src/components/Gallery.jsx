@@ -25,6 +25,7 @@ export default function Gallery({ onZoom }) {
     queryFn: () => getImages({ page, filter }),
     keepPreviousData: true,
   });
+  console.log(data)
 
   const images = data?.data || [];
 

@@ -18,6 +18,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "sqlite": "^5.1.1",
+    "sqlite-gui-node": "^1.4.0",
     "sqlite3": "^5.1.7"
   }
 }

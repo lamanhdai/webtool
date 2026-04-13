@@ -8,6 +8,7 @@ import { initDb } from './db/index.js';
 import authRoutes from './routes/authRoutes.js';
 import imageRoutes from './routes/imageRoutes.js';
 import { ensureDefaultAdmin } from './services/userService.js';
+import { SqliteGuiNodeMiddleware } from "sqlite-gui-node";
 
 const app = express();
 
@@ -45,7 +46,10 @@ app.use((err, _req, res, _next) => {
 });
 
 async function bootstrap() {
-  await initDb();
+  const db = await initDb();
+  const sqliteGuiDb =
+    typeof db.getDatabaseInstance === 'function' ? db.getDatabaseInstance() : db;
+  app.use(SqliteGuiNodeMiddleware(app, sqliteGuiDb));
   await ensureDefaultAdmin();
 
   app.listen(env.port, () => {

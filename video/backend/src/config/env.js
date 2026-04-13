@@ -4,6 +4,7 @@ dotenv.config()
 
 export const env = {
   port: Number(process.env.PORT || 8787),
+  databasePath: process.env.DATABASE_PATH || './data/video-api.db',
   subtitlePublicBaseUrl: process.env.SUBTITLE_PUBLIC_BASE_URL || 'http://localhost:8787',
   openAiApiKey: process.env.OPENAI_API_KEY || '',
   openAiWhisperModel: process.env.OPENAI_WHISPER_MODEL || 'whisper-1',
