@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./extractTextinImage
+        working-directory: ./PromptGeneratorApp
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js 22
@@ -28,5 +28,5 @@ jobs:
         username: ${{ secrets.USERNAME }}
         port: "21"
         password: ${{ secrets.PASSWORD }}
-        local-dir: "extractTextinImage/dist/"
+        local-dir: "PromptGeneratorApp/dist/"
         server-dir: "htdocs/"
