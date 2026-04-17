@@ -15,6 +15,11 @@ export async function getMe() {
   return data;
 }
 
+export async function changePassword(payload) {
+  const { data } = await api.post('/auth/change-password', payload);
+  return data;
+}
+
 export async function getImages({ page, filter }) {
   const { data } = await api.get('/images', {
     params: { page, filter, sync:'true' },
