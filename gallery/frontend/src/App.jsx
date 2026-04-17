@@ -66,7 +66,7 @@ export default function App() {
         <header className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4">
           <div>
             <h1 className="text-2xl font-bold">{title}</h1>
-            <p className="text-sm text-slate-400">Locked by default • Signed URLs • JWT auth</p>
+            <p className="text-sm text-slate-400"></p>
           </div>
           {user && (
             <div className="flex items-center gap-3">
