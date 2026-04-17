@@ -8,12 +8,18 @@ import {
 } from '../services/userService.js';
 import { signToken } from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
+import { createCaptchaChallenge, verifyCaptchaChallenge } from '../services/captchaService.js';
 
 const router = Router();
 
+router.get('/captcha', (_req, res) => {
+  const challenge = createCaptchaChallenge();
+  return res.json(challenge);
+});
+
 router.post('/register', async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, captchaChallengeId, captchaAnswer } = req.body;
     const safeUsername = typeof username === 'string' ? username.trim() : '';
     const safeEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
     const safePassword = typeof password === 'string' ? password : '';
@@ -21,6 +27,14 @@ router.post('/register', async (req, res, next) => {
 
     if (!safeUsername || !safeEmail || !emailRegex.test(safeEmail) || !safePassword || safePassword.length < 6) {
       return res.status(400).json({ message: 'Username, valid email, and password (min 6 chars) are required' });
+    }
+
+    const captchaResult = verifyCaptchaChallenge({
+      challengeId: captchaChallengeId,
+      answer: captchaAnswer,
+    });
+    if (!captchaResult.ok) {
+      return res.status(400).json({ message: captchaResult.message });
     }
 
     const user = await createUser(safeUsername, safeEmail, safePassword);

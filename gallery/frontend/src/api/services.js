@@ -46,3 +46,8 @@ export async function getImageDetails(imageId) {
   const { data } = await api.get(`/images/${imageId}`);
   return data;
 }
+
+export async function getCaptchaChallenge() {
+  const { data } = await api.get('/auth/captcha');
+  return data;
+}

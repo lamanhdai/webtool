@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { login, register } from '../api/services';
+import { getCaptchaChallenge, login, register } from '../api/services';
 import { useAppStore } from '../store/useAppStore';
 
 export default function AuthPanel() {
@@ -8,8 +9,32 @@ export default function AuthPanel() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [captchaChallengeId, setCaptchaChallengeId] = useState('');
+  const [captchaPrompt, setCaptchaPrompt] = useState('');
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [isCaptchaLoading, setIsCaptchaLoading] = useState(false);
   const setAuth = useAppStore((s) => s.setAuth);
   const showToast = useAppStore((s) => s.showToast);
+
+  const refreshCaptcha = async () => {
+    try {
+      setIsCaptchaLoading(true);
+      const challenge = await getCaptchaChallenge();
+      setCaptchaChallengeId(challenge.challengeId || '');
+      setCaptchaPrompt(challenge.prompt || '');
+      setCaptchaAnswer('');
+    } catch {
+      showToast('Failed to load captcha', 'error');
+    } finally {
+      setIsCaptchaLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isRegister && !captchaChallengeId) {
+      refreshCaptcha();
+    }
+  }, [isRegister, captchaChallengeId]);
 
   const mutation = useMutation({
     mutationFn: (payload) => (isRegister ? register(payload) : login(payload)),
@@ -19,6 +44,9 @@ export default function AuthPanel() {
     },
     onError: (error) => {
       showToast(error?.response?.data?.message || 'Authentication failed', 'error');
+      if (isRegister) {
+        refreshCaptcha();
+      }
     },
   });
 
@@ -31,7 +59,17 @@ export default function AuthPanel() {
         showToast('Please enter a valid email address', 'error');
         return;
       }
-      mutation.mutate({ username, email: trimmedEmail, password });
+      if (!captchaChallengeId || !captchaAnswer.trim()) {
+        showToast('Please solve captcha before registering', 'error');
+        return;
+      }
+      mutation.mutate({
+        username,
+        email: trimmedEmail,
+        password,
+        captchaChallengeId,
+        captchaAnswer: captchaAnswer.trim(),
+      });
       return;
     }
 
@@ -50,14 +88,36 @@ export default function AuthPanel() {
           className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
         />
         {isRegister && (
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            placeholder="Email"
-            className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
-            required
-          />
+          <>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              placeholder="Email"
+              className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+              required
+            />
+            <div className="rounded-md border border-slate-700 bg-slate-950 p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm text-slate-300">CAPTCHA: {captchaPrompt || 'Loading...'}</span>
+                <button
+                  type="button"
+                  onClick={refreshCaptcha}
+                  disabled={isCaptchaLoading}
+                  className="text-xs text-indigo-400 hover:text-indigo-300 disabled:opacity-60"
+                >
+                  Refresh
+                </button>
+              </div>
+              <input
+                value={captchaAnswer}
+                onChange={(e) => setCaptchaAnswer(e.target.value)}
+                placeholder="Enter captcha answer"
+                className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2"
+                required
+              />
+            </div>
+          </>
         )}
         <input
           value={password}
