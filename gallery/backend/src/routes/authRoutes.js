@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { createUser, getUnlockedImageIds, getUserById, verifyUserCredentials } from '../services/userService.js';
+import {
+  changeUserPassword,
+  createUser,
+  getUnlockedImageIds,
+  getUserById,
+  verifyUserCredentials,
+} from '../services/userService.js';
 import { signToken } from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
 
@@ -69,6 +75,28 @@ router.get('/me', requireAuth, async (req, res) => {
     isAdmin: Boolean(user.isAdmin),
     unlockedImages,
   });
+});
+
+router.post('/change-password', requireAuth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const safeCurrentPassword = typeof currentPassword === 'string' ? currentPassword : '';
+  const safeNewPassword = typeof newPassword === 'string' ? newPassword : '';
+
+  if (!safeCurrentPassword || !safeNewPassword || safeNewPassword.length < 6) {
+    return res.status(400).json({ message: 'Current password and new password (min 6 chars) are required' });
+  }
+
+  const result = await changeUserPassword(req.user.sub, safeCurrentPassword, safeNewPassword);
+
+  if (!result.ok && result.code === 'NOT_FOUND') {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (!result.ok && result.code === 'INVALID_CURRENT_PASSWORD') {
+    return res.status(401).json({ message: 'Current password is incorrect' });
+  }
+
+  return res.json({ message: 'Password changed successfully' });
 });
 
 export default router;

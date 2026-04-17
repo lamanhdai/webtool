@@ -29,7 +29,7 @@ export default function AuthPanel() {
   return (
     <div className="mx-auto max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6">
       <h2 className="mb-4 text-xl font-semibold">{isRegister ? 'Register' : 'Login'}</h2>
-      <p className="mb-4 text-sm text-slate-400">Default admin: admin / 123456</p>
+      <p className="mb-4 text-sm text-slate-400"></p>
       <form className="space-y-3" onSubmit={onSubmit}>
         <input
           value={username}

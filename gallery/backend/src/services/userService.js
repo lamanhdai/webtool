@@ -70,3 +70,21 @@ export async function getUnlockedImageIds(userId) {
   );
   return rows.map((row) => row.imageId);
 }
+
+export async function changeUserPassword(userId, currentPassword, newPassword) {
+  const db = getDb();
+  const user = await db.get('SELECT id, password_hash FROM users WHERE id = ?', userId);
+  if (!user) {
+    return { ok: false, code: 'NOT_FOUND' };
+  }
+
+  const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+  if (!isCurrentPasswordValid) {
+    return { ok: false, code: 'INVALID_CURRENT_PASSWORD' };
+  }
+
+  const newPasswordHash = await bcrypt.hash(newPassword, 12);
+  await db.run('UPDATE users SET password_hash = ? WHERE id = ?', newPasswordHash, userId);
+
+  return { ok: true };
+}
