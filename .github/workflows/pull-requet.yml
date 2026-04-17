@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./PromptGeneratorApp
+        working-directory: ./gallery/frontend
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js 22
@@ -28,5 +28,5 @@ jobs:
         username: ${{ secrets.USERNAME }}
         port: "21"
         password: ${{ secrets.PASSWORD }}
-        local-dir: "PromptGeneratorApp/dist/"
+        local-dir: "gallery/frontend/dist/"
         server-dir: "htdocs/"
