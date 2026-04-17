@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { getCaptchaChallenge, login, register } from '../api/services';
 import { useAppStore } from '../store/useAppStore';
