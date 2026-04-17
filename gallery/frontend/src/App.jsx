@@ -57,7 +57,7 @@ export default function App() {
     }
   }, [pathname, token]);
 
-  const title = useMemo(() => (user ? `Welcome, ${user.username}` : 'Secure Cloudinary Gallery'), [user]);
+  const title = useMemo(() => (user ? `Welcome, ${user.username}` : 'Secure Gallery'), [user]);
   const isUserRoute = pathname === '/user';
 
   return (
