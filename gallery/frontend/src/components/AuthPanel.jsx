@@ -5,8 +5,9 @@ import { useAppStore } from '../store/useAppStore';
 
 export default function AuthPanel() {
   const [isRegister, setIsRegister] = useState(false);
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('123456');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const setAuth = useAppStore((s) => s.setAuth);
   const showToast = useAppStore((s) => s.showToast);
 
@@ -23,6 +24,17 @@ export default function AuthPanel() {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    if (isRegister) {
+      const trimmedEmail = email.trim().toLowerCase();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        showToast('Please enter a valid email address', 'error');
+        return;
+      }
+      mutation.mutate({ username, email: trimmedEmail, password });
+      return;
+    }
+
     mutation.mutate({ username, password });
   };
 
@@ -37,6 +49,16 @@ export default function AuthPanel() {
           placeholder="Username"
           className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
         />
+        {isRegister && (
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            placeholder="Email"
+            className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"
+            required
+          />
+        )}
         <input
           value={password}
           onChange={(e) => setPassword(e.target.value)}

@@ -8,6 +8,7 @@ export default function GalleryCard({ image, onZoom }) {
   const queryClient = useQueryClient();
   const applyUnlock = useAppStore((s) => s.applyUnlock);
   const showToast = useAppStore((s) => s.showToast);
+  const imageSrc = image.imageUrl || image.previewUrl;
 
   const unlockMutation = useMutation({
     mutationFn: () => unlockImage(image.id),
@@ -74,7 +75,7 @@ export default function GalleryCard({ image, onZoom }) {
     <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-800">
         <img
-          src={image.previewUrl}
+          src={imageSrc}
           alt="Gallery"
           className={`h-full w-full object-cover ${image.locked ? 'blur-xl grayscale' : ''}`}
           loading="lazy"
@@ -91,7 +92,7 @@ export default function GalleryCard({ image, onZoom }) {
           </div>
         ) : (
           <button
-            onClick={() => onZoom(image.previewUrl)}
+            onClick={() => onZoom(imageSrc)}
             className="absolute right-2 top-2 rounded bg-black/60 px-2 py-1 text-xs"
           >
             🔍 Zoom

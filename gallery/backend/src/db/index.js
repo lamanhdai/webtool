@@ -24,6 +24,7 @@ export async function initDb() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE,
       password_hash TEXT NOT NULL,
       points INTEGER NOT NULL DEFAULT 5,
       is_admin INTEGER NOT NULL DEFAULT 0,
@@ -78,6 +79,16 @@ export async function initDb() {
     CREATE INDEX IF NOT EXISTS idx_image_comments_image_id ON image_comments(image_id);
     CREATE INDEX IF NOT EXISTS idx_image_likes_image_id ON image_likes(image_id);
   `);
+
+  const userColumns = await db.all('PRAGMA table_info(users)');
+  const hasEmailColumn = userColumns.some((col) => col.name === 'email');
+  if (!hasEmailColumn) {
+    await db.exec('ALTER TABLE users ADD COLUMN email TEXT');
+  }
+
+  await db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_unique ON users(email)');
+  await db.exec("UPDATE users SET email = username || '@local.dev' WHERE email IS NULL OR TRIM(email) = ''");
+ 
 
   return db;
 }

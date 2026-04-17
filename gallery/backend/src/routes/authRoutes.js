@@ -13,15 +13,17 @@ const router = Router();
 
 router.post('/register', async (req, res, next) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
     const safeUsername = typeof username === 'string' ? username.trim() : '';
+    const safeEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
     const safePassword = typeof password === 'string' ? password : '';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!safeUsername || !safePassword || safePassword.length < 6) {
-      return res.status(400).json({ message: 'Username and password (min 6 chars) are required' });
+    if (!safeUsername || !safeEmail || !emailRegex.test(safeEmail) || !safePassword || safePassword.length < 6) {
+      return res.status(400).json({ message: 'Username, valid email, and password (min 6 chars) are required' });
     }
 
-    const user = await createUser(safeUsername, safePassword);
+    const user = await createUser(safeUsername, safeEmail, safePassword);
     const token = signToken({ sub: user.id, username: user.username, isAdmin: Boolean(user.isAdmin) });
     const unlockedImages = await getUnlockedImageIds(user.id);
 
@@ -30,14 +32,27 @@ router.post('/register', async (req, res, next) => {
       user: {
         id: user.id,
         username: user.username,
+        email: user.email,
         points: user.points,
         isAdmin: Boolean(user.isAdmin),
         unlockedImages,
       },
     });
   } catch (error) {
-    if (String(error.message || '').includes('UNIQUE')) {
+    if (error?.code === 'USERNAME_EXISTS') {
       return res.status(409).json({ message: 'Username already exists' });
+    }
+    if (error?.code === 'EMAIL_EXISTS') {
+      return res.status(409).json({ message: 'Email already exists' });
+    }
+    if (String(error.message || '').includes('users.username')) {
+      return res.status(409).json({ message: 'Username already exists' });
+    }
+    if (String(error.message || '').includes('users.email')) {
+      return res.status(409).json({ message: 'Email already exists' });
+    }
+    if (String(error.message || '').includes('UNIQUE')) {
+      return res.status(409).json({ message: 'Username or email already exists' });
     }
     return next(error);
   }
@@ -71,6 +86,7 @@ router.get('/me', requireAuth, async (req, res) => {
   return res.json({
     id: user.id,
     username: user.username,
+    email: user.email,
     points: user.points,
     isAdmin: Boolean(user.isAdmin),
     unlockedImages,

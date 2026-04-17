@@ -44,7 +44,7 @@ export function buildSignedImageUrl(publicId, format = 'jpg') {
 
   return cloudinary.url(publicId, {
     resource_type: 'image',
-    type: 'authenticated',
+    type: 'upload',
     format,
     secure: true,
     sign_url: true,

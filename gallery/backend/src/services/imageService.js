@@ -72,6 +72,7 @@ export async function listImages({ page = 1, filter = 'dateAdded', userId = null
     data: rows.map((row) => {
       const image = mapImageRow(row);
       const unlocked = Boolean(row.unlocked);
+      const imageUrl = unlocked ? buildSignedImageUrl(image.publicId, image.format) : placeholderDataUrl();
       return {
         id: image.id,
         format: image.format,
@@ -81,7 +82,8 @@ export async function listImages({ page = 1, filter = 'dateAdded', userId = null
         commentsCount: image.commentsCount,
         unlocked,
         locked: !unlocked,
-        previewUrl: unlocked ? `/api/images/${image.id}/content` : placeholderDataUrl(),
+        previewUrl: imageUrl,
+        imageUrl,
       };
     }),
     page: safePage,
