@@ -19,6 +19,7 @@
     "morgan": "^1.10.0",
     "sqlite": "^5.1.1",
     "sqlite-gui-node": "^1.4.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "@vercel/blob": "2.3.3"
   }
 }
