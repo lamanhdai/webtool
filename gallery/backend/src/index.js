@@ -52,9 +52,9 @@ async function bootstrap() {
   app.use(SqliteGuiNodeMiddleware(app, sqliteGuiDb));
   await ensureDefaultAdmin();
 
-  app.listen(env.port, () => {
-    console.log(`Backend running on http://localhost:${env.port}`);
-  });
+  // app.listen(env.port, () => {
+  //   console.log(`Backend running on http://localhost:${env.port}`);
+  // });
 }
 
 bootstrap().catch((error) => {
