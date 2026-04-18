@@ -9,7 +9,7 @@ let db;
 export async function initDb() {
   if (db) return db;
 
-  const dbPath = path.resolve(process.cwd(), env.databasePath);
+  const dbPath = path.resolve('/tmp', env.databasePath);
   const dir = path.dirname(dbPath);
   fs.mkdirSync(dir, { recursive: true });
 
