@@ -10,6 +10,8 @@ jobs:
   build:
     name: Deploy
     runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ secrets.VITE_API_BASE }}
     defaults:
       run:
         working-directory: ./gallery/frontend
