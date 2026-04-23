@@ -22,7 +22,7 @@ export async function changePassword(payload) {
 
 export async function getImages({ page, filter }) {
   const { data } = await api.get('/images', {
-    params: { page, filter, sync:'true' },
+    params: { page, filter },
   });
   return data;
 }
