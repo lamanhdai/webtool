@@ -7,7 +7,7 @@ on:
     branches:
       - master
 jobs:
-  build:
+  build-gallery:
     name: Deploy
     runs-on: ubuntu-latest
     defaults:
@@ -32,3 +32,26 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         local-dir: "gallery/frontend/dist/"
         server-dir: "htdocs/gallery/"
+  build-extractText:
+    name: Deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./extractTextinImage
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - run: npm install
+    - run: npm run build
+    - name: Upload ftp
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with: 
+        server: ${{ secrets.HOST_IP }}
+        username: ${{ secrets.USERNAME }}
+        port: "21"
+        password: ${{ secrets.PASSWORD }}
+        local-dir: "extractTextinImage/dist/"
+        server-dir: "htdocs/extract-text/"
