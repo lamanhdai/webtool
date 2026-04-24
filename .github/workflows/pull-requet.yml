@@ -31,4 +31,4 @@ jobs:
         port: "21"
         password: ${{ secrets.PASSWORD }}
         local-dir: "gallery/frontend/dist/"
-        server-dir: "htdocs/"
+        server-dir: "htdocs/gallery/"
